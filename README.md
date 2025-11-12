@@ -92,6 +92,51 @@ Terminal specifications accept three methods:
 
 Each model reports both the present value of the explicit forecast period and the contribution from the terminal value so you can quickly gauge how assumptions are driving the valuation.
 
+## Weighted-average cost of capital (WACC)
+
+The FCFF model discounts cash flows using the blended opportunity cost of the capital structure:
+
+```
+WACC = (E / (D + E)) * R_e + (D / (D + E)) * R_d * (1 - T_c)
+```
+
+- `E` — market value of common equity
+- `D` — market value of interest-bearing debt
+- `R_e` — cost of equity (e.g., via CAPM)
+- `R_d` — pre-tax cost of debt
+- `T_c` — marginal corporate tax rate
+
+The debt component is tax-effected because interest is typically tax-deductible, while common equity receives no such shield.
+
+## Discounted cash flow equations
+
+All models share the same discounted cash flow framework: discount the explicit forecast period and add a terminal value that summarizes the cash flows beyond the forecast horizon. The specific cash flow definition and discount rate differ by model:
+
+### FCFF (Free Cash Flow to Firm)
+
+```
+Enterprise Value = Σ_{t=1}^{N} FCFF_t / (1 + WACC)^t + TV_FCFF / (1 + WACC)^N
+Equity Value = Enterprise Value - Net Debt + Non-operating Assets
+```
+
+`FCFF_t` represents operating cash flows after reinvestment but before debt service. The terminal value `TV_FCFF` usually comes from a perpetual growth or exit multiple assumption. Adjusting for leverage bridges enterprise value to equity.
+
+### FCFE (Free Cash Flow to Equity)
+
+```
+Equity Value = Σ_{t=1}^{N} FCFE_t / (1 + R_e)^t + TV_FCFE / (1 + R_e)^N
+```
+
+`FCFE_t` already reflects interest payments and net borrowing, so the discount rate is the cost of equity `R_e`, and no further capital structure adjustments are needed.
+
+### Dividend Discount Model (Gordon Growth)
+
+```
+Price_0 = Σ_{t=1}^{N} D_t / (1 + R_e)^t + (D_{N+1} / (R_e - g)) / (1 + R_e)^N
+```
+
+`D_t` denotes per-share dividends, `g` is the steady-state growth rate applied after year `N`, and `R_e` is again the cost of equity. Multiplying `Price_0` by the diluted share count converts the per-share value into total equity value for comparison with the FCFE output.
+
 ## Output formats
 
 - **table** (default) — concise side-by-side comparison
@@ -108,4 +153,3 @@ python3 dcf.py --output-format verbose
 
 - Swap in your own assumptions via a JSON file to evaluate alternative scenarios.
 - Extend `dcf.py` with additional models (e.g., residual income) following the same pattern if you need more coverage.
-
